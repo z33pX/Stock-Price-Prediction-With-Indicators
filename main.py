@@ -2,13 +2,82 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pandas_datareader.data as web
+import datetime
+import time
 
-# export TF_CPP_MIN_LOG_LEVEL=2
+# Disable UserWarning: export TF_CPP_MIN_LOG_LEVEL=2
+
+
+def get_date():
+    return str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
+
+
+def rsi_function(prices, n=14):
+    deltas = np.diff(prices)
+    seed = deltas[:n + 1]
+    up = seed[seed >= 0].sum()/n
+    down = -seed[seed < 0].sum()/n
+    relative_strengh = up/down
+    rsi = np.zeros_like(prices)
+    rsi[:n] = 100. - 100./(1. + relative_strengh)
+
+    for i in range(n, len(prices)):
+        delta = deltas[i - 1]
+        if delta > 0:
+            upval = delta
+            downval = 0.
+        else:
+            upval = 0.
+            downval = -delta
+
+        up = (up * (n - 1) + upval)/n
+        down = (down * (n - 1) + downval)/n
+
+        relative_strengh = up/down
+        rsi[i] = 100. - 100. / (1. + relative_strengh)
+
+    return rsi
+
+
+def stochastics_oscillator(df, period):
+    l, h = pd.DataFrame.rolling(df, period).min(), pd.DataFrame.rolling(df, period).max()
+    return 100 * (df - l) / (h - l)
+
+
+def ATR(df, period):
+    df['H-L'] = abs(df['High'] - df['Low'])
+    df['H-PC'] = abs(df['High'] - df['Close'].shift(1))
+    df['L-PC'] = abs(df['Low'] - df['Close'].shift(1))
+    return df[['H-L', 'H-PC', 'L-PC']].max(axis=1).to_frame()
+
+
+## 0) *** Download data and calculate indicators ***
+# Tesla:
+ticker = 'TSLA'
+
+# SP500:
+# ticker = '^GSPC'
+
+start_date = '20000101'
+end_date = get_date()
+
+# (exponential) moving averages:
+m_av_1 = 100
+m_av_2 = 200
+
+main_df = web.DataReader('TSLA', 'yahoo', start_date, end_date)
+main_df.index.names = ['date']
+
+print(len(main_df.index))
+
+# ...
+
+# ...
 
 # Parameters
-ticker = 'TSLA'
 batch_size = 3
-test_dataset_size = 0.1 # = 10 percent of the complete dataset
+test_dataset_size = 0.1 # = 10 percent of the complete dataset for testing
 number_of_features = 4
 num_units = 12
 learning_rate = 0.001
