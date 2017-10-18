@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # export TF_CPP_MIN_LOG_LEVEL=2
 
-## 1) *** Daten bearbeiten ***
+## 1) *** Prepare data ***
 
 # Data parameters
 ticker = 'TSLA'
@@ -30,9 +30,8 @@ dataset_train_y = data['CloseTarget'].as_matrix()[:dataset_train_length]
 dataset_test_x = data[['Close', 'MACD', 'Stochastics', 'ATR']].as_matrix()[dataset_train_length:]
 dataset_test_y = data['CloseTarget'].as_matrix()[dataset_train_length:]
 
-## 2) *** Netzwerk Zusammensetzen ***
+## 2) *** Building the network ***
 
-# Reserviere Speicherplatz fuer leere Tensor
 plh_batch_x = tf.placeholder(dtype=tf.float32,
 	shape=[None, batch_size, number_of_features], name='plc_batch_x')
 
@@ -42,7 +41,6 @@ plh_batch_y = tf.placeholder(dtype=tf.float32,
 
 labels_series = tf.unstack(plh_batch_y, axis=1)
 
-# Erstellt ein rekurrentes Netzwerk mit 12 Neuronen.
 cell = tf.contrib.rnn.BasicRNNCell(num_units=num_units)
 
 states_series, current_state = tf.nn.dynamic_rnn(cell=cell, inputs=plh_batch_x, dtype=tf.float32)
@@ -63,12 +61,11 @@ train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 l_loss = []
 l_test_pred = []
 
-## ********************** Netzwerk starten **********************
 
 with tf.Session() as sess:
     tf.global_variables_initializer().run()
 
-    ## 3) Netzwerk trainieren
+    ## 3) Train the network
 
     for i_epochs in range(epochs):
         print('Epoch: {}'.format(i_epochs))
@@ -91,7 +88,7 @@ with tf.Session() as sess:
             # if i_batch % 100 == 0:
                 # print('Batch: {} ({}-{}), loss: {}'.format(i_batch, i_batch_start, i_batch_end, _loss))
 
-    ## 4) Netzwerk testen
+    ## 4) Test the Network
 
     for i_test in range(data_length - dataset_train_length - batch_size):
 
@@ -107,7 +104,7 @@ with tf.Session() as sess:
         l_test_pred.append(test_pred[-1][0])  # The last one
 
 
-## 5) Zeiche einen Graphen vom Ergebnis
+## 5) Draw graph
 
 fig = plt.figure(facecolor='#000606')
 plt.suptitle(ticker, color='#00decc')
