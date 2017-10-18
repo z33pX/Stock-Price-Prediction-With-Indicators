@@ -5,18 +5,16 @@ import matplotlib.pyplot as plt
 
 # export TF_CPP_MIN_LOG_LEVEL=2
 
-## 1) *** Prepare data ***
-
-# Data parameters
+# Parameters
 ticker = 'TSLA'
 batch_size = 3
 test_dataset_size = 0.1 # = 10 percent of the complete dataset
 number_of_features = 4
-
-# Network parameters
 num_units = 12
 learning_rate = 0.001
 epochs = 20
+
+## 1) *** Prepare the data ***
 
 data = pd.read_csv(ticker + '_technical_indicators.csv')
 data = data.set_index(['Date'])
@@ -30,7 +28,7 @@ dataset_train_y = data['CloseTarget'].as_matrix()[:dataset_train_length]
 dataset_test_x = data[['Close', 'MACD', 'Stochastics', 'ATR']].as_matrix()[dataset_train_length:]
 dataset_test_y = data['CloseTarget'].as_matrix()[dataset_train_length:]
 
-## 2) *** Building the network ***
+## 2) *** Build the network ***
 
 plh_batch_x = tf.placeholder(dtype=tf.float32,
 	shape=[None, batch_size, number_of_features], name='plc_batch_x')
