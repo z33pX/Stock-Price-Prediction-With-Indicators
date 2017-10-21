@@ -10,7 +10,7 @@ The prediction is based on a recurrent neural network. The following indicators 
 * Stochastic Oscillator -- `'Stochastics'`
 * ATR (Average True Range) -- `'ATR'`
 * RSI (Relative Strength Index) -- `'RSI'`
-* Moving Average 1 -- `'ci.moving_average_1'`
+* Moving Average 1 -- `'ci.moving_average_1_label'`
 * Moving Average 2 -- `'ci.moving_average_2_label'`
 
 You can add or remove these indicators by editing the feature list:
