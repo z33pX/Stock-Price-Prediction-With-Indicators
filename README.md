@@ -59,6 +59,6 @@ df = get_data(ticker=ticker, start_date='20000101', end_date=date_today)
 Result
 -
 
-Below you can see the result of the parameter configuration described on this page.
+Below you can see an example result of the parameter configuration described on this page.
 
-![ ](https://github.com/z33pX/Stock-Price-Prediction-With-Indicators/blob/master/pic.png)
+![](https://github.com/z33pX/Stock-Price-Prediction-With-Indicators/blob/master/pic.png)
