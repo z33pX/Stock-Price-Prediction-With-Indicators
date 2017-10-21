@@ -19,7 +19,7 @@ You can add or remove these indicators by editing the feature list:
 features = ['MACD', ci.moving_average_1_label]
 ```
 
-Parameters of indiacators
+Parameters of indicators
 -
 
 The parameters of the indicator are alterable. Try different values and combinations of indicators as features to reduce the tracking error.
