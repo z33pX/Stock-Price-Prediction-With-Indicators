@@ -47,7 +47,7 @@ learning_rate = 0.001
 epochs = 10
 
 # All available features:
-# ['Close', 'MACD', 'Stochastics', 'ATR', 'RSI', ci.moving_average_1, ci.moving_average_2_label]
+# ['Close', 'MACD', 'Stochastics', 'ATR', 'RSI', ci.moving_average_1_label, ci.moving_average_2_label]
 features = ['MACD', ci.moving_average_1_label]
 
 data_length = len(data.index) - (len(data.index) % batch_size)
