@@ -10,14 +10,12 @@ def _plot(ax, fig, data, color, label, end_label=None, offset=.15, linestyle='-'
 
     ax.plot(data, linestyle, label=label, color=color, linewidth=0.7)
 
-    if end_label == None:
-        ax.text(len(data) - 1, data[-1], truncate(data[-1], 2),
-                  size=7, va="center", ha="center", transform=trans_offset,
-                  bbox=dict(boxstyle="angled,pad=0.2", alpha=0.6, color=color))
+    if end_label:
+        ax.text(len(data) - 1, data[-1], end_label, size=7, va="center", ha="center", transform=trans_offset,
+                bbox=dict(boxstyle="angled,pad=0.2", alpha=0.6, color=color))
     else:
-        ax.text(len(data) - 1, data[-1], end_label,
-                  size=7, va="center", ha="center", transform=trans_offset,
-                  bbox=dict(boxstyle="angled,pad=0.2", alpha=0.6, color=color))
+        ax.text(len(data) - 1, data[-1], truncate(data[-1], 2), size=7, va="center", ha="center",
+                transform=trans_offset, bbox=dict(boxstyle="angled,pad=0.2", alpha=0.6, color=color))
 
 
 class MyStyle(BoxStyle._Base):
