@@ -26,7 +26,7 @@ The parameters of the indicator are alterable. Try different values and combinat
 
 ```
 ci.set_RSI_parameter(n=14)
-ci.set_MACD_parameter2(period_1=12, period_2=26, period_signal=9)
+ci.set_MACD_parameter(period_1=12, period_2=26, period_signal=9)
 ci.set_SO_parameter(period=14)
 ci.set_moving_average_1(window=12)
 ci.set_moving_average_2(window=26)
@@ -35,11 +35,11 @@ ci.set_moving_average_2(window=26)
 Network parameters
 -
 
-* Batch size: `'batch_size = 5'`
+* Batch size: `'batch_size = 3'`
 * Size of the test dataset. 0.1 means 10% of the complete dataset. The remaining 90% are testing data: `'test_dataset_size = 0.1'`
-* Neurons of the RNN: `'num_units = 56'`
+* Neurons of the RNN: `'num_units = 12'`
 * Learning rate: `'learning_rate = 0.001'`
-* Epochs: `'epochs = 5'`
+* Epochs: `'epochs = 10'`
 
 Try different values for different stocks to get better results. The parameters above worked fine for me for Tesla (`'TSLA'`)
 

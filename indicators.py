@@ -26,7 +26,7 @@ class CalculateIndicators(object):
     def set_RSI_parameter(self, n):
         self.RSI_n = n
 
-    def set_MACD_parameter2(self, period_1, period_2, period_signal):
+    def set_MACD_parameter(self, period_1, period_2, period_signal):
         self.MACD_period_1 = period_1
         self.MACD_period_2 = period_2
         self.MACD_period_signal = period_signal
