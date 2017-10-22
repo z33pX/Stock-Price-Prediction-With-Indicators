@@ -29,13 +29,12 @@ ci = CalculateIndicators(df)
 
 # Parameters
 ci.set_RSI_parameter(n=14)
-ci.set_MACD_parameter(period_1=12, period_2=26, period_signal=9)
+ci.set_MACD_parameter(fast=12, slow=26, signal=9)
 ci.set_SO_parameter(period=14)
 ci.set_moving_average_1(window=12)
 ci.set_moving_average_2(window=26)
 
 data = ci.calculate_indicators()
-print(data)
 
 ## *********************************************************************************
 ## 2) *** Set parameters and prepare train and test datasets ***

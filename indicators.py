@@ -10,9 +10,9 @@ class CalculateIndicators(object):
 
     stochastic_oscillator_period = 14
 
-    MACD_period_1 = 12
-    MACD_period_2 = 26
-    MACD_period_signal = 9
+    MACD_fast = 12
+    MACD_slow = 26
+    MACD_signal = 9
 
     moving_average_1_value = 12
     moving_average_2_value = 26
@@ -26,10 +26,10 @@ class CalculateIndicators(object):
     def set_RSI_parameter(self, n):
         self.RSI_n = n
 
-    def set_MACD_parameter(self, period_1, period_2, period_signal):
-        self.MACD_period_1 = period_1
-        self.MACD_period_2 = period_2
-        self.MACD_period_signal = period_signal
+    def set_MACD_parameter(self, fast, slow, signal):
+        self.MACD_fast = fast
+        self.MACD_slow = slow
+        self.MACD_signal = signal
 
     def set_SO_parameter(self, period):
         self.stochastic_oscillator_period = period
@@ -124,7 +124,7 @@ class CalculateIndicators(object):
 
         stochastics_df = self.stochastic_oscillator(self.stochastic_oscillator_period)
 
-        macd_df = self.MACD(self.MACD_period_1, self.MACD_period_2, self.MACD_period_signal)
+        macd_df = self.MACD(self.MACD_fast, self.MACD_slow, self.MACD_signal)
 
         close_target_df = df.shift(-1)
         close_target_df.rename(columns={'Close':'CloseTarget'}, inplace=True)

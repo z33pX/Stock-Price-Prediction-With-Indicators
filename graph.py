@@ -112,7 +112,7 @@ def draw(ticker, dataset_test_y, l_test_pred, data, features, moving_average_1,
 
     legend = ax_price.legend(loc='best', fancybox=True, framealpha=0.5)
     legend.get_frame().set_facecolor('#000606')
-    for line,text in zip(legend.get_lines(), legend.get_texts()):
+    for line, text in zip(legend.get_lines(), legend.get_texts()):
         text.set_color(line.get_color())
 
     plt.show()
