@@ -18,9 +18,9 @@ def truncate(f, n):
 ## 0) *** Download data ***
 
 ticker = 'TSLA'
-date_today = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
+end_date = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
 
-df = get_data(ticker=ticker, start_date='20000101', end_date=date_today)
+df = get_data(ticker=ticker, start_date='20000101', end_date=end_date)
 
 ## *********************************************************************************
 ## 1) *** Calculat indicators ***
@@ -47,7 +47,7 @@ learning_rate = 0.001
 epochs = 10
 
 # All available features:
-# ['Close', 'MACD', 'Stochastics', 'ATR', 'RSI', ci.moving_average_1, ci.moving_average_2_label]
+# ['Close', 'MACD', 'Stochastics', 'ATR', 'RSI', ci.moving_average_1_label, ci.moving_average_2_label]
 features = ['MACD', ci.moving_average_1_label]
 
 data_length = len(data.index) - (len(data.index) % batch_size)
@@ -91,7 +91,7 @@ loss = tf.reduce_mean(tf.squared_difference(last_label, prediction))
 
 train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
-l_loss = [0]
+l_loss = []
 l_test_pred = []
 
 ## *********************************************************************************
@@ -103,7 +103,6 @@ with tf.Session() as sess:
     ## 5) Train the network
 
     for i_epochs in range(epochs):
-        print('Epoch: {}, Loss: {}'.format(i_epochs, truncate(l_loss[-1], 8)))
 
         for i_batch in range(dataset_train_length / batch_size):
             i_batch_start = i_batch * batch_size
@@ -122,6 +121,8 @@ with tf.Session() as sess:
 
             # if i_batch % 100 == 0:
                 # print('Batch: {} ({}-{}), loss: {}'.format(i_batch, i_batch_start, i_batch_end, _loss))
+
+        print('Epoch: {}, Loss: {}'.format(i_epochs, truncate(l_loss[-1], 8)))
 
     ## 6) Test the Network
 

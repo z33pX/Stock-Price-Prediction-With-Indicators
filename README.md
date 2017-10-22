@@ -1,9 +1,12 @@
 # Stock-Price-Prediction-With-Indicators
 
+This program is for experimenting and testing with indicators of the technical analysis for predicting prices of stocks.
+The prediction is based on a recurrent neural network.
+
 Indicators
 -
 
-The prediction is based on a recurrent neural network. The following indicators are available as features:
+The following indicators are available as features:
 
 * Close (of the day before) -- `'Close'`
 * MACD  -- `'MACD'`
@@ -19,7 +22,7 @@ You can add or remove these indicators by editing the feature list:
 features = ['MACD', ci.moving_average_1_label]
 ```
 
-Parameters of indiacators
+Parameters of indicators
 -
 
 The parameters of the indicator are alterable. Try different values and combinations of indicators as features to reduce the tracking error.
@@ -47,14 +50,15 @@ Data
 -
 
 The dataset will be downloaded by a specified ticker symbol like `'TSLA'` (Tesla), `'MSFT'` (Microsoft) or `'AMZN'` 
-(Amazon) from Yahoo Finance
+(Amazon) from Yahoo Finance. The size of the dataset can be adjusted by the `'start_date'` and the `'end_date'`.
 
 ```
 ticker = 'TSLA'
-date_today = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
+end_date = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
 
-df = get_data(ticker=ticker, start_date='20000101', end_date=date_today)
+df = get_data(ticker=ticker, start_date='20000101', end_date=end_date)
 ```
+The first part of the dataset will be cut by the length of the longest moving average to prevent empty data.
 
 Result
 -
