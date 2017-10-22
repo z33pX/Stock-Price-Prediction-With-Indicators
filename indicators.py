@@ -43,16 +43,16 @@ class CalculateIndicators(object):
         self.moving_average_2_label = 'ma_' + str(self.moving_average_2_value)
 
 
-    def RSI(self, prices, n):
-        deltas = np.diff(prices)
+    def RSI(self, n):
+        deltas = np.diff(self.df['Close'])
         seed = deltas[:n + 1]
         up = seed[seed >= 0].sum() / n
         down = -seed[seed < 0].sum() / n
         relative_strengh = up / down
-        rsi = np.zeros_like(prices)
+        rsi = np.zeros_like(self.df['Close'])
         rsi[:n] = 100. - 100. / (1. + relative_strengh)
 
-        for i in range(n, len(prices)):
+        for i in range(n, len(self.df['Close'])):
             delta = deltas[i - 1]
             if delta > 0:
                 upval = delta
@@ -67,62 +67,68 @@ class CalculateIndicators(object):
             relative_strengh = up / down
             rsi[i] = 100. - 100. / (1. + relative_strengh)
 
-        return rsi
+        return pd.DataFrame(rsi, index=self.df.index, columns={'RSI'})
 
     def stochastic_oscillator(self, period):
-        l = pd.DataFrame.rolling(self.df, period).min()
-        h = pd.DataFrame.rolling(self.df, period).max()
-        return 100 * (self.df - l) / (h - l)
+        close = self.df['Close'].to_frame()
+        l = pd.DataFrame.rolling(close, period).min()
+        h = pd.DataFrame.rolling(close, period).max()
 
-    def MACD(self, period_1, period_2, period_signal):
-        ema1 = pd.DataFrame.ewm(self.df, span=period_1).mean()
-        ema2 = pd.DataFrame.ewm(self.df, span=period_2).mean()
+        _df = 100 * (close - l) / (h - l)
+        _df.rename(columns={'Close':'Stochastics'}, inplace=True)
+
+        return _df
+
+    def MACD(self, fast, slow, signal):
+        close = self.df['Close'].to_frame()
+        ema1 = pd.DataFrame.ewm(close, span=fast).mean()
+        ema2 = pd.DataFrame.ewm(close, span=slow).mean()
         MACD = ema1 - ema2
 
-        signal = pd.DataFrame.ewm(MACD, period_signal).mean()
+        signal = pd.DataFrame.ewm(MACD, signal).mean()
 
-        return MACD - signal
+        _df = (MACD - signal)
+        _df.rename(columns={'Close':'MACD'}, inplace=True)
+
+        return _df
 
     def ATR(self, period):
-        df = self.df
-        df['H-L'] = abs(self.df['High'] - self.df['Low'])
-        df['H-PC'] = abs(self.df['High'] - self.df['Close'].shift(1))
-        df['L-PC'] = abs(self.df['Low'] - self.df['Close'].shift(1))
-        return df[['H-L', 'H-PC', 'L-PC']].max(axis=1).to_frame()
+        _df = pd.DataFrame()
+
+        _df['H-L'] = abs(self.df['High'] - self.df['Low'])
+        _df['H-PC'] = abs(self.df['High'] - self.df['Close'].shift(1))
+        _df['L-PC'] = abs(self.df['Low'] - self.df['Close'].shift(1))
+        _df = pd.DataFrame(_df[['H-L', 'H-PC', 'L-PC']].max(axis=1), columns={'ATR'})
+
+        return _df
+
+
+    def MA(self, value, column):
+        _df = self.df['Close'].rolling(window=value, center=False).mean().dropna()
+        z = np.full(len(self.df.index) - len(_df.index), np.nan)
+
+        return pd.DataFrame(np.append(z, _df.values), index=self.df.index, columns={column})
+
 
     def calculate_indicators(self):
 
         atr_df = self.ATR(14)
-        atr_df.rename(columns={0:'ATR'}, inplace=True)
 
         df = pd.DataFrame(self.df['Close'])
-        df = df.iloc[::-1]
 
-        ma_1_df = df.rolling(window=self.moving_average_1_value, center=False).mean().dropna()
-        z = np.zeros(len(df.index) - len(ma_1_df.index))
-        ma_1_df = pd.DataFrame(np.append(ma_1_df['Close'].values, z), index=df.index, columns={self.moving_average_1_label})
+        ma_1_df = self.MA(self.moving_average_1_value, self.moving_average_1_label)
 
-        ma_2_df = df.rolling(window= self.moving_average_2_value, center=False).mean().dropna()
-        z = np.zeros(len(df.index) - len(ma_2_df.index))
-        ma_2_df = pd.DataFrame(np.append(ma_2_df['Close'].values, z), index=df.index, columns={self.moving_average_2_label})
+        ma_2_df = self.MA(self.moving_average_2_value, self.moving_average_2_label)
 
-        rsi = self.RSI(df['Close'], self.RSI_n)
-        rsi_df = pd.DataFrame(rsi, index=df.index, columns={'RSI'})
+        rsi_df = self.RSI(self.RSI_n)
 
         stochastics_df = self.stochastic_oscillator(self.stochastic_oscillator_period)
-        stochastics_df.rename(columns={'Close':'Stochastics'}, inplace=True)
 
         macd_df = self.MACD(self.MACD_period_1, self.MACD_period_2, self.MACD_period_signal)
-        macd_df.rename(columns={'Close':'MACD'}, inplace=True)
 
         close_target_df = df.shift(-1)
         close_target_df.rename(columns={'Close':'CloseTarget'}, inplace=True)
 
         data = pd.concat([df, close_target_df, macd_df, rsi_df, ma_1_df, ma_2_df, stochastics_df, atr_df], axis=1)
-
-        if self.moving_average_2_value > self.moving_average_1_value:
-            data = data.iloc[self.moving_average_2_value:]
-        else:
-            data = data.iloc[self.moving_average_1_value:]
 
         return data.dropna()

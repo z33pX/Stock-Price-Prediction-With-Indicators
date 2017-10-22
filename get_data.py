@@ -5,7 +5,7 @@ from pathlib import Path as pl
 
 def get_data(ticker, start_date, end_date):
 
-    file_path = ticker + '_data.ple'
+    file_path = ticker + '_data.pcl'
     file = pl(file_path)
 
     if file.exists():

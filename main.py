@@ -35,6 +35,7 @@ ci.set_moving_average_1(window=12)
 ci.set_moving_average_2(window=26)
 
 data = ci.calculate_indicators()
+print(data)
 
 ## *********************************************************************************
 ## 2) *** Set parameters and prepare train and test datasets ***
