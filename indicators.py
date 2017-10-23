@@ -102,13 +102,11 @@ class CalculateIndicators(object):
 
         return _df
 
-
     def MA(self, value, column):
         _df = self.df['Close'].rolling(window=value, center=False).mean().dropna()
         z = np.full(len(self.df.index) - len(_df.index), np.nan)
 
         return pd.DataFrame(np.append(z, _df.values), index=self.df.index, columns={column})
-
 
     def calculate_indicators(self):
 

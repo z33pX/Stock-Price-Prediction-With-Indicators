@@ -1,11 +1,13 @@
 import tensorflow as tf
 from graph import draw
+from graph import show
+from graph import save
 from get_data import get_data
 from indicators import CalculateIndicators
 import datetime
 import time
 
-# Disable UserWarning on linux promt: export TF_CPP_MIN_LOG_LEVEL=2
+# Disable UserWarnings on linux promt: export TF_CPP_MIN_LOG_LEVEL=2
 
 def truncate(f, n):
     s = '{}'.format(f)
@@ -37,7 +39,7 @@ ci.set_moving_average_2(window=26)
 data = ci.calculate_indicators()
 
 ## *********************************************************************************
-## 2) *** Set parameters and prepare train and test datasets ***
+## 2) *** Set parameters and prepare datasets for training and testing ***
 
 # Parameters
 batch_size = 3
@@ -49,19 +51,18 @@ epochs = 10
 # All available features:
 # ['Close', 'MACD', 'Stochastics', 'ATR', 'RSI', ci.moving_average_1_label, ci.moving_average_2_label]
 features = ['MACD', ci.moving_average_1_label]
+number_of_features = len(features)
 
 data_length = len(data.index) - (len(data.index) % batch_size)
-data = (data - data.mean()) / (data.max() - data.min())[:data_length]
+data_n = (data - data.mean()) / (data.max() - data.min())[:data_length]
 
-dataset_train_length = data_length - int(len(data.index) * test_dataset_size)
+dataset_train_length = data_length - int(len(data_n.index) * test_dataset_size)
 
-dataset_train_x = data[features].as_matrix()[:dataset_train_length]
-dataset_train_y = data['CloseTarget'].as_matrix()[:dataset_train_length]
+dataset_train_x = data_n[features].as_matrix()[:dataset_train_length]
+dataset_train_y = data_n['CloseTarget'].as_matrix()[:dataset_train_length]
 
-dataset_test_x = data[features].as_matrix()[dataset_train_length:]
-dataset_test_y = data['CloseTarget'].as_matrix()[dataset_train_length:]
-
-number_of_features = len(features)
+dataset_test_x = data_n[features].as_matrix()[dataset_train_length:]
+dataset_test_y = data_n['CloseTarget'].as_matrix()[dataset_train_length:]
 
 ## *********************************************************************************
 ## 3) *** Build the network ***
@@ -92,7 +93,7 @@ loss = tf.reduce_mean(tf.squared_difference(last_label, prediction))
 train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
 l_loss = []
-l_test_pred = []
+predicted_data = []
 
 ## *********************************************************************************
 ## 4) *** Start the session ***
@@ -137,13 +138,34 @@ with tf.Session() as sess:
         feed = {plh_batch_x: x, plh_batch_y: y}
 
         _last_state, _last_label, test_pred = sess.run([last_state, last_label, prediction], feed_dict=feed)
-        l_test_pred.append(test_pred[-1][0])  # The last one
+        predicted_data.append(test_pred[-1][0])  # The last one
 
 ## *********************************************************************************
 ## 7) Draw graph
 
 # Parameters
-draw_moving_averages = True
+draw_ATR=True
+draw_MACD=True
+draw_Stochastics=True
+draw_RSI=True
 
-draw(ticker, dataset_test_y, l_test_pred, data, features, ci.moving_average_1_label, ci.moving_average_2_label,
-     draw_moving_averages=draw_moving_averages)
+# By setting the labels of the ma the ma will be visible in the graph
+moving_average_1 = ci.moving_average_1_label
+moving_average_2 = None
+
+# I love to play around with colors :)
+accent_color = '#c9c9c9'
+indicators_color = '#007b9f'
+
+# The use of rescaled data is necessary for plotting the price and moving averages in the same graph.
+data['Close'] = data_n['Close']
+data[ci.moving_average_1_label] = data_n[ci.moving_average_1_label]
+data[ci.moving_average_2_label] = data_n[ci.moving_average_2_label]
+
+# Draw
+draw(ticker, data[dataset_train_length:], predicted_data, moving_average_1, moving_average_2,
+     draw_ATR=draw_ATR, draw_MACD=draw_MACD, draw_Stochastics=draw_Stochastics, draw_RSI=draw_RSI,
+     accent_color=accent_color, indicators_color=indicators_color)
+
+show()
+# save('graph.png')
