@@ -50,7 +50,7 @@ Data
 -
 
 The dataset is specifiable by a ticker symbol like `'TSLA'` (Tesla), `'MSFT'` (Microsoft) or `'AMZN'` 
-(Amazon). The first time you start the program the data will be downloaded from Yahoo Finance and stored in a pickle file.
+(Amazon). The first time you are starting the program the data will be downloaded from Yahoo Finance and stored in a pickle file.
 The size of the dataset can be adjusted by  `start_date` and `end_date`.
 
 ```
