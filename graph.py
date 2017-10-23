@@ -163,13 +163,6 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
         ax.axhline(30, color='#a90000', linewidth=0.6)
         ax.axhline(70, color='#007200', linewidth=0.6)
 
-        # ax.fill_between(x[-SP:], rsi[-SP:], 70, facecolors='#007200', alpha=.5, edgecolor='#007200')
-
-        # ax.fill_between(x[-SP:], rsi[-SP:], 30, where=(rsi[-SP:] <= 30),
-        #                     facecolors=sf.color_rsi_line_oversold,
-        #                     alpha=sf.color_rsi_alpha,
-        #                     edgecolor=sf.color_rsi_line_oversold)
-
     if draw_ATR:
         _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
                         position_y=position_2_y, label='ATR', color=indicators_color, sharex=ax_main,
