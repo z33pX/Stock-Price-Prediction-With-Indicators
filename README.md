@@ -64,7 +64,8 @@ The first part of the dataset will be cut by the length of the longest moving av
 Graph
 -
 
-All indicators can be visualised by setting the corresponding variable.
+All indicators can be visualised by setting the corresponding variable
+(The MACD graph will be completed soon).
 ```
 draw_ATR=True
 draw_MACD=True
