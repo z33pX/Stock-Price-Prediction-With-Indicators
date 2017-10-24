@@ -71,10 +71,8 @@ draw_ATR=True
 draw_MACD=True
 draw_Stochastics=True
 draw_RSI=True
-
-# By setting the labels of the ma the ma will be visible in the graph
-moving_average_1 = ci.moving_average_1_label
-moving_average_2 = None
+draw_moving_average_1 = False
+draw_moving_average_2 = True
 ```
 
 Result

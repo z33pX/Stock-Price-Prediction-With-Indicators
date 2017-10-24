@@ -4,6 +4,7 @@ from matplotlib.path import Path
 import matplotlib.transforms as mtrans
 from matplotlib.patches import BoxStyle
 import pandas as pd
+from indicators import CalculateIndicators
 
 
 def truncate(f, n):
@@ -93,7 +94,7 @@ def _add_graph(fig, data_df, main_grid_y, position_y, label, color, sharex=None,
     return ax
 
 
-def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=None, **kwargs):
+def draw(ticker, df, predicted_data_y, ci_object, **kwargs):
     fig = plt.figure(facecolor='#070d00')
     fig.canvas.set_window_title(ticker)
     plt.subplots_adjust(left=.08, bottom=.08, right=.96, top=.96, hspace=.3, wspace=.0)
@@ -107,6 +108,8 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
     draw_ATR = False
     draw_MACD = False
     draw_Stochastics = False
+    draw_moving_average_1 = False
+    draw_moving_average_2 = False
 
     main_grid_y = 4
     postition_y = [2, 2, 2, 2]
@@ -117,6 +120,13 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
                 accent_color = kwargs[key]
             if key == 'indicators_color':
                 indicators_color = kwargs[key]
+
+            if key == 'draw_moving_average_1':
+                draw_moving_average_1 = kwargs[key]
+
+            if key == 'draw_moving_average_2':
+                draw_moving_average_2 = kwargs[key]
+
             if key == 'draw_RSI':
                 draw_RSI = True
                 postition_y = [x + y for x, y in zip(postition_y, [2, 2, 2, 2])]
@@ -145,15 +155,15 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
     _plot(fig, ax_main, test_data_y, '#f600ff', 'Price')
 
     # Plot indicators
-    if moving_average_1:
-        ma = df[moving_average_1].as_matrix()
+    if draw_moving_average_1:
+        ma = df[ci_object.moving_average_1_label].as_matrix()
         _plot(fig=fig, ax=ax_main, data=ma, color='#47b804',
-              label=moving_average_1, end_label=moving_average_1, offset=.21)
+              label=ci_object.moving_average_1_label, end_label=ci_object.moving_average_1_label, offset=.21)
 
-    if moving_average_2:
-        ma = df[moving_average_2].as_matrix()
+    if draw_moving_average_2:
+        ma = df[ci_object.moving_average_2_label].as_matrix()
         _plot(fig=fig, ax=ax_main, data=ma, color='#205d01',
-              label=moving_average_2, end_label=moving_average_2, offset=.21)
+              label=ci_object.moving_average_2_label, end_label=ci_object.moving_average_2_label, offset=.21)
 
     if draw_RSI:
         ax = _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
@@ -168,8 +178,6 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
                         facecolors='#a90000', alpha=.5, edgecolor='#a90000')
         if position_labels_y == 0:
             ax.tick_params(axis='x', colors=accent_color)
-
-
 
     if draw_ATR:
         ax = _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
@@ -188,10 +196,14 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
         if position_labels_y == 2:
             ax.tick_params(axis='x', colors=accent_color)
 
-        ema = pd.ewma(df['MACD'], span=9)
+        ema = pd.ewma(df['MACD'], span=ci_object.MACD_signal)
         ax.plot(arange_y, ema, label='ema_9', color='#ffba00', linewidth=0.7)
         ax.fill_between(arange_y, df['MACD'] - ema, 0 , facecolors='#ffba00', alpha=.5, edgecolor='#ffba00')
-
+        ax.legend(loc='upper left')
+        legend = ax.legend(loc='best', fancybox=True, framealpha=0.5)
+        legend.get_frame().set_facecolor('#070d00')
+        for line, text in zip(legend.get_lines(), legend.get_texts()):
+            text.set_color(line.get_color())
 
     if draw_Stochastics:
         ax = _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
@@ -219,6 +231,7 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
     ax_main.spines['top'].set_color('#070d00')
     ax_main.spines['bottom'].set_color('#070d00')
     ax_main.tick_params(axis='y', colors=accent_color, labelsize=9)
+    ax_main.tick_params(axis='x', colors='#070d00', labelsize=9)
 
     ax_main.fill_between(np.arange(0, len(predicted_data_y), 1), test_data_y[:len(predicted_data_y)], predicted_data_y,
                          alpha=.05, color='#ffba00')

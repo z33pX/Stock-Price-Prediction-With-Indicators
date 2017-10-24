@@ -59,10 +59,8 @@ draw_ATR=True
 draw_MACD=True
 draw_Stochastics=True
 draw_RSI=True
-
-# By setting the labels of the ma the ma will be visible in the graph
-moving_average_1 = ci.moving_average_1_label
-moving_average_2 = None
+draw_moving_average_1 = True
+draw_moving_average_2 = False
 
 # I love to play around with colors :)
 accent_color = '#c9c9c9'
@@ -74,7 +72,8 @@ data[ci.moving_average_1_label] = data_n[ci.moving_average_1_label]
 data[ci.moving_average_2_label] = data_n[ci.moving_average_2_label]
 
 # Draw
-draw(ticker, data[dataset_train_length:], predicted_data, moving_average_1, moving_average_2,
+draw(ticker, data[dataset_train_length:], predicted_data, ci,
+     draw_moving_average_1 = draw_moving_average_1, draw_moving_average_2=draw_moving_average_2,
      draw_ATR=draw_ATR, draw_MACD=draw_MACD, draw_Stochastics=draw_Stochastics, draw_RSI=draw_RSI,
      accent_color=accent_color, indicators_color=indicators_color)
 
