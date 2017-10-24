@@ -71,8 +71,8 @@ draw_ATR=True
 draw_MACD=True
 draw_Stochastics=True
 draw_RSI=True
-draw_moving_average_1 = False
-draw_moving_average_2 = True
+draw_moving_average_1 = True
+draw_moving_average_2 = False
 ```
 
 Result
