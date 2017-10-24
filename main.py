@@ -12,7 +12,7 @@ import time
 ## *********************************************************************************
 ## 1) *** Download data ***
 
-ticker = 'MSFT'
+ticker = 'TSLA'
 end_date = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
 
 df = get_data(ticker=ticker, start_date='20000101', end_date=end_date)
@@ -36,7 +36,7 @@ data = ci.calculate_indicators()
 
 # Parameters
 batch_size = 3
-test_dataset_size = 0.05  # = 10 percent of the complete dataset for testing
+test_dataset_size = 0.1  # = 10 percent of the complete dataset for testing
 num_units = 12
 learning_rate = 0.001
 epochs = 10
