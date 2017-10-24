@@ -135,6 +135,7 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
                 main_grid_y += 2
 
     position_labels_y = min([i for i, j in enumerate(postition_y) if j == max(postition_y)])
+    arange_y = np.arange(0, len(test_data_y), 1)
 
     plt.suptitle(ticker, color=accent_color)
 
@@ -161,9 +162,9 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
 
         ax.axhline(30, color='#a90000', linewidth=0.6)
         ax.axhline(70, color='#4c7e1b', linewidth=0.6)
-        ax.fill_between(np.arange(0, len(test_data_y), 1), df['RSI'], 70, where=(df['RSI'] >= 70),
+        ax.fill_between(arange_y, df['RSI'], 70, where=(df['RSI'] >= 70),
                         facecolors='#007200', alpha=.5, edgecolor='#007200')
-        ax.fill_between(np.arange(0, len(test_data_y), 1), df['RSI'], 30, where=(df['RSI'] <= 30),
+        ax.fill_between(arange_y, df['RSI'], 30, where=(df['RSI'] <= 30),
                         facecolors='#a90000', alpha=.5, edgecolor='#a90000')
         if position_labels_y == 0:
             ax.tick_params(axis='x', colors=accent_color)
@@ -187,13 +188,10 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
         if position_labels_y == 2:
             ax.tick_params(axis='x', colors=accent_color)
 
-        # macd graph will be completed soon ...
+        ema = pd.ewma(df['MACD'], span=9)
+        ax.plot(arange_y, ema, label='ema_9', color='#ffba00', linewidth=0.7)
+        ax.fill_between(arange_y, df['MACD'] - ema, 0 , facecolors='#ffba00', alpha=.5, edgecolor='#ffba00')
 
-        # ema = pd.ewma(df['MACD'], span=9)
-        # _plot(fig, ax, ema, '#f600ff', label=None)
-        # ax.plot(ema, label=None, color='#f600ff', linewidth=0.7)
-
-        # ...
 
     if draw_Stochastics:
         ax = _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
