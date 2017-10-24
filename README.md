@@ -65,7 +65,7 @@ Graph
 -
 
 All indicators can be visualised by setting the corresponding variable
-(The MACD graph will be completed soon).
+
 ```
 draw_ATR=True
 draw_MACD=True
