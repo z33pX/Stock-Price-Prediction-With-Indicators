@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.path import Path
 import matplotlib.transforms as mtrans
 from matplotlib.patches import BoxStyle
+import pandas as pd
 
 
 def truncate(f, n):
@@ -65,7 +66,7 @@ def _plot(fig, ax, data, color, label, end_label=None, offset=.15, linestyle='-'
 def _add_graph(fig, data_df, main_grid_y, position_y, label, color, sharex=None, y_label_color=None):
 
     ax = plt.subplot2grid((main_grid_y, 4), (position_y, 0), sharex=sharex,
-                          rowspan=2, colspan=4, facecolor='#000606')
+                          rowspan=2, colspan=4, facecolor='#070d00')
 
     y_color = color
 
@@ -75,16 +76,17 @@ def _add_graph(fig, data_df, main_grid_y, position_y, label, color, sharex=None,
     _plot(fig, ax, data_df[label].as_matrix(), color, label)
 
     ax.spines['left'].set_color(y_color)
-    ax.spines['right'].set_color('#000606')
-    ax.spines['top'].set_color('#000606')
-    ax.spines['bottom'].set_color('#000606')
+    ax.spines['right'].set_color('#070d00')
+    ax.spines['top'].set_color('#070d00')
+    ax.spines['bottom'].set_color('#070d00')
     ax.legend(loc='upper left')
     ax.grid(linestyle='dotted')
     ax.yaxis.label.set_color(y_color)
     ax.tick_params(axis='y', colors=y_color, labelsize=9)
+    ax.tick_params(axis='x', colors='#070d00')
 
     legend = ax.legend(loc='best', fancybox=True, framealpha=0.5)
-    legend.get_frame().set_facecolor('#000606')
+    legend.get_frame().set_facecolor('#070d00')
     for line,text in zip(legend.get_lines(), legend.get_texts()):
         text.set_color(line.get_color())
 
@@ -92,7 +94,7 @@ def _add_graph(fig, data_df, main_grid_y, position_y, label, color, sharex=None,
 
 
 def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=None, **kwargs):
-    fig = plt.figure(facecolor='#000606')
+    fig = plt.figure(facecolor='#070d00')
     fig.canvas.set_window_title(ticker)
     plt.subplots_adjust(left=.08, bottom=.08, right=.96, top=.96, hspace=.3, wspace=.0)
 
@@ -107,10 +109,7 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
     draw_Stochastics = False
 
     main_grid_y = 4
-    position_1_y = 4
-    position_2_y = 4
-    position_3_y = 4
-    position_4_y = 4
+    postition_y = [2, 2, 2, 2]
 
     for key in kwargs:
         if kwargs[key]:
@@ -120,26 +119,26 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
                 indicators_color = kwargs[key]
             if key == 'draw_RSI':
                 draw_RSI = True
+                postition_y = [x + y for x, y in zip(postition_y, [2, 2, 2, 2])]
                 main_grid_y += 2
-                position_2_y += 2
-                position_3_y += 2
-                position_4_y += 2
             if key == 'draw_ATR':
                 draw_ATR = True
+                postition_y = [x + y for x, y in zip(postition_y, [0, 2, 2, 2])]
                 main_grid_y += 2
-                position_3_y += 2
-                position_4_y += 2
             if key == 'draw_MACD':
                 draw_MACD = True
+                postition_y = [x + y for x, y in zip(postition_y, [0, 0, 2, 2])]
                 main_grid_y += 2
-                position_4_y += 2
             if key == 'draw_Stochastics':
                 draw_Stochastics = True
+                postition_y = [x + y for x, y in zip(postition_y, [0, 0, 0, 2])]
                 main_grid_y += 2
+
+    position_labels_y = min([i for i, j in enumerate(postition_y) if j == max(postition_y)])
 
     plt.suptitle(ticker, color=accent_color)
 
-    ax_main = plt.subplot2grid((main_grid_y, 4), (0, 0), rowspan=4, colspan=4, facecolor='#000606')
+    ax_main = plt.subplot2grid((main_grid_y, 4), (0, 0), rowspan=4, colspan=4, facecolor='#070d00')
 
     # Plot test dataset
     _plot(fig, ax_main, test_data_y, '#f600ff', 'Price')
@@ -157,26 +156,52 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
 
     if draw_RSI:
         ax = _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
-                        position_y=position_1_y, label='RSI', color=indicators_color, sharex=ax_main,
+                        position_y=postition_y[0], label='RSI', color=indicators_color, sharex=ax_main,
                         y_label_color=accent_color)
 
         ax.axhline(30, color='#a90000', linewidth=0.6)
-        ax.axhline(70, color='#007200', linewidth=0.6)
+        ax.axhline(70, color='#4c7e1b', linewidth=0.6)
+        ax.fill_between(np.arange(0, len(test_data_y), 1), df['RSI'], 70, where=(df['RSI'] >= 70),
+                        facecolors='#007200', alpha=.5, edgecolor='#007200')
+        ax.fill_between(np.arange(0, len(test_data_y), 1), df['RSI'], 30, where=(df['RSI'] <= 30),
+                        facecolors='#a90000', alpha=.5, edgecolor='#a90000')
+        if position_labels_y == 0:
+            ax.tick_params(axis='x', colors=accent_color)
+
+
 
     if draw_ATR:
-        _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
-                        position_y=position_2_y, label='ATR', color=indicators_color, sharex=ax_main,
+        ax = _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
+                        position_y=postition_y[1], label='ATR', color=indicators_color, sharex=ax_main,
                         y_label_color=accent_color)
+
+        if position_labels_y == 1:
+            ax.tick_params(axis='x', colors=accent_color)
+
     if draw_MACD:
         ax = _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
-                        position_y=position_3_y, label='MACD', color=indicators_color, sharex=ax_main,
+                        position_y=postition_y[2], label='MACD', color=indicators_color, sharex=ax_main,
                         y_label_color=accent_color)
         ax.axhline(0, color=indicators_color, linewidth=0.6)
 
+        if position_labels_y == 2:
+            ax.tick_params(axis='x', colors=accent_color)
+
+        # macd graph will be completed soon ...
+
+        # ema = pd.ewma(df['MACD'], span=9)
+        # _plot(fig, ax, ema, '#f600ff', label=None)
+        # ax.plot(ema, label=None, color='#f600ff', linewidth=0.7)
+
+        # ...
+
     if draw_Stochastics:
-        _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
-                        position_y=position_4_y, label='Stochastics', color=indicators_color, sharex=ax_main,
+        ax = _add_graph(fig=fig, data_df=df, main_grid_y=main_grid_y,
+                        position_y=postition_y[3], label='Stochastics', color=indicators_color, sharex=ax_main,
                         y_label_color=accent_color)
+
+        if position_labels_y == 3:
+            ax.tick_params(axis='x', colors=accent_color)
 
     # Plot predicted data
     predicted_data_y = [x for x in predicted_data_y if str(x) != 'nan']
@@ -185,24 +210,23 @@ def draw(ticker, df, predicted_data_y, moving_average_1=None, moving_average_2=N
     # Add tracking error box
     tracking_error = truncate(np.std(predicted_data_y - test_data_y[:len(predicted_data_y)]) * 100, 2)
     ax_main.annotate('Tracking Error: ' + str(tracking_error) + '%', xy=(0.7, 0.05),
-                      xycoords='axes fraction', fontsize=10, bbox=dict(facecolor='#ffba00', alpha=0.6),
+                      xycoords='axes fraction', fontsize=10, bbox=dict(facecolor='#ffba00', alpha=0.8),
                       ha='left', va='bottom')
 
     ax_main.grid(linestyle='dotted')
     ax_main.yaxis.label.set_color(accent_color)
     ax_main.legend(loc='upper left')
     ax_main.spines['left'].set_color(accent_color)
-    ax_main.spines['right'].set_color('#000606')
-    ax_main.spines['top'].set_color('#000606')
-    ax_main.spines['bottom'].set_color('#000606')
+    ax_main.spines['right'].set_color('#070d00')
+    ax_main.spines['top'].set_color('#070d00')
+    ax_main.spines['bottom'].set_color('#070d00')
     ax_main.tick_params(axis='y', colors=accent_color, labelsize=9)
-    # ax_main.tick_params(axis='x', colors=accent_color)
 
     ax_main.fill_between(np.arange(0, len(predicted_data_y), 1), test_data_y[:len(predicted_data_y)], predicted_data_y,
-                          alpha=.05, color='#ffba00')
+                         alpha=.05, color='#ffba00')
 
     legend = ax_main.legend(loc='best', fancybox=True, framealpha=0.5)
-    legend.get_frame().set_facecolor('#000606')
+    legend.get_frame().set_facecolor('#070d00')
     for line, text in zip(legend.get_lines(), legend.get_texts()):
         text.set_color(line.get_color())
 
@@ -212,4 +236,4 @@ def show():
 
 
 def save(path):
-    plt.savefig(path, facecolor='#000606')
+    plt.savefig(path, facecolor='#070d00')
