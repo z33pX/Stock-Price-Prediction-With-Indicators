@@ -1,7 +1,35 @@
 # Stock-Price-Prediction-With-Indicators
 
 This program is for testing and experimenting with indicators to predict prices of stocks.
-The prediction is based on a recurrent neural network. You can find all following listed variables in `main.py`
+The prediction is based on a recurrent neural network. To make useful predictions based on this approach it is necessary 
+to predict the indicators first. Because of that this program is not able to make final predictions yet. The goal of this program
+is not to make final predictions to decide whether to invest or not. But it's purpose is to experiment with 
+indicators on the rnn approach to find more or less useful indicators and configurations.
+
+For that a set of indicators is available as input features. For each indiactor you can change the parameters like `fast=12, slow=26, signal=9` 
+for MACD for example. For better understanding all indicators are visualisable.
+You can find all following listed variables in `main.py`.
+
+Data
+-
+
+The dataset is specifiable by a ticker symbol like `'TSLA'` (Tesla), `'MSFT'` (Microsoft) or `'AMZN'` 
+(Amazon). The first time you are starting the program the data will be downloaded from Yahoo Finance and stored in a pickle file.
+The size of the dataset can be adjusted by  `start_date` and `end_date`.
+
+```
+ticker = 'TSLA'
+start_date = '20000101'
+end_date = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
+
+```
+
+After the indicators are calculated the data will be normalized for faster learning. 
+You can experiment and change the formula to whatever you want:
+
+`data_n = (data - data.mean()) / (data.max() - data.min())
+`
+
 
 Indicators
 -
@@ -45,21 +73,6 @@ Network parameters
 * Epochs: `epochs = 10`
 
 Try different values for different stocks to get better results. The parameters above worked fine for me for Tesla (`'TSLA'`)
-
-Data
--
-
-The dataset is specifiable by a ticker symbol like `'TSLA'` (Tesla), `'MSFT'` (Microsoft) or `'AMZN'` 
-(Amazon). The first time you are starting the program the data will be downloaded from Yahoo Finance and stored in a pickle file.
-The size of the dataset can be adjusted by  `start_date` and `end_date`.
-
-```
-ticker = 'TSLA'
-end_date = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
-
-df = get_data(ticker=ticker, start_date='20000101', end_date=end_date)
-```
-The first part of the dataset will be cut by the length of the longest moving average to prevent empty data.
 
 Graph
 -

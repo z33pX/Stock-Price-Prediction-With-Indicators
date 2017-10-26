@@ -4,7 +4,6 @@ from matplotlib.path import Path
 import matplotlib.transforms as mtrans
 from matplotlib.patches import BoxStyle
 import pandas as pd
-from indicators import CalculateIndicators
 
 
 def truncate(f, n):
@@ -196,7 +195,7 @@ def draw(ticker, df, predicted_data_y, ci_object, **kwargs):
         if position_labels_y == 2:
             ax.tick_params(axis='x', colors=accent_color)
 
-        ema = pd.ewma(df['MACD'], span=ci_object.MACD_signal)
+        ema = df['MACD'].ewm(ignore_na=False, span=ci_object.MACD_signal, min_periods=0, adjust=True).mean()
         ax.plot(arange_y, ema, label='ema_9', color='#ffba00', linewidth=0.7)
         ax.fill_between(arange_y, df['MACD'] - ema, 0 , facecolors='#ffba00', alpha=.5, edgecolor='#ffba00')
         ax.legend(loc='upper left')

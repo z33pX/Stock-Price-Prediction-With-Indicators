@@ -13,13 +13,15 @@ import time
 ## 1) *** Download data ***
 
 ticker = 'TSLA'
+start_date = '20000101'
 end_date = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
 
-df = get_data(ticker=ticker, start_date='20000101', end_date=end_date)
+df = get_data(ticker=ticker, start_date=start_date, end_date=end_date)
 
 ## *********************************************************************************
 ## 2) *** Calculat indicators ***
 
+# The first part of the dataset will be cut depending on the indicators parameter to prevent empty data.
 ci = CalculateIndicators(df)
 
 # Parameters
@@ -30,6 +32,9 @@ ci.set_moving_average_1(window=12)
 ci.set_moving_average_2(window=26)
 
 data = ci.calculate_indicators()
+
+# Normalized Data
+data_n = (data - data.mean()) / (data.max() - data.min())
 
 ## *********************************************************************************
 ## 3) *** Set parameters, prepare datasets, testing and training ***
@@ -45,9 +50,7 @@ epochs = 10
 # ['Close', 'MACD', 'Stochastics', 'ATR', 'RSI', ci.moving_average_1_label, ci.moving_average_2_label]
 features = ['MACD', ci.moving_average_1_label]
 
-data_length = len(data.index) - (len(data.index) % batch_size)
-data_n = (data - data.mean()) / (data.max() - data.min())[:data_length]
-dataset_train_length = data_length - int(len(data_n.index) * test_dataset_size)
+dataset_train_length = len(data_n.index) - int(len(data_n.index) * test_dataset_size)
 
 predicted_data = network(data_n, features, batch_size, dataset_train_length, num_units, learning_rate, epochs)
 
@@ -66,10 +69,14 @@ draw_moving_average_2 = False
 accent_color = '#c9c9c9'
 indicators_color = '#598720'
 
-# The use of rescaled data is necessary for plotting the price and moving averages in the same graph.
+# The use of normalized data is necessary for plotting the price and moving averages in the same graph.
 data['Close'] = data_n['Close']
 data[ci.moving_average_1_label] = data_n[ci.moving_average_1_label]
 data[ci.moving_average_2_label] = data_n[ci.moving_average_2_label]
+# data['ATR'] = data_n['ATR']
+# data['MACD'] = data_n['MACD']
+# data['Stochastics'] = data_n['Stochastics']
+# data['RSI'] = data_n['RSI']
 
 # Draw
 draw(ticker, data[dataset_train_length:], predicted_data, ci,
