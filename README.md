@@ -25,7 +25,7 @@ end_date = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
 ```
 
 After the indicators are calculated the data will be normalized for faster learning. 
-You can experiment and change the formula to whatever you want:
+You can experiment and change the formula:
 
 `data_n = (data - data.mean()) / (data.max() - data.min())
 `
