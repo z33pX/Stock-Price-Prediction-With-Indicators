@@ -2,8 +2,7 @@
 
 This program is for testing and experimenting with indicators to predict prices of stocks.
 The prediction is based on a recurrent neural network. To make useful predictions based on this approach it is necessary 
-to predict the indicators first. Because of that this program is not able to make final predictions yet. The goal of this program
-is not to make final predictions to decide whether to invest or not. But it's purpose is to experiment with 
+to predict the indicators first. Because of that this program is not able to make final predictions yet. **The goal of this program is not to make final predictions to decide whether to invest or not**. But it's purpose is to experiment with 
 indicators on the rnn approach to find more or less useful indicators and configurations.
 
 For that a set of indicators is available as input features. For each indiactor you can change the parameters like `fast=12, slow=26, signal=9` 
