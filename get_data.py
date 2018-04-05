@@ -14,7 +14,7 @@ def get_data(ticker, start_date, end_date):
 
     else:
         print('download data ...')
-        main_df = web.DataReader(ticker, 'yahoo', start_date, end_date)
+        main_df = web.DataReader(ticker, 'quandl', start_date, end_date)
         main_df.index.names = ['Date']
 
         print('save data to file ...')
