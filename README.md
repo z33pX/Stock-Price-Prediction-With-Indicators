@@ -43,8 +43,7 @@ data = data.reset_index()
 data = data.drop('index', 1)
 
 # Normalize data
-# data_n = (data - data.mean()) / (data.max() - data.min())
-data_n = data
+data_n = (data - data.mean()) / (data.max() - data.min())
 ```
 To select a feature just enter the name of the column to the feature list:
 
@@ -62,7 +61,7 @@ Network parameters
 * Size of the test dataset. 0.1 means 10% of the complete dataset. The remaining 90% are testing data: `test_dataset_size = 0.1`
 * Neurons of the RNN: `num_units = 12`
 * Learning rate: `learning_rate = 0.001`
-* Epochs: `epochs = 10`
+* Epochs: `epochs = 8`
 
 Plot everything
 -

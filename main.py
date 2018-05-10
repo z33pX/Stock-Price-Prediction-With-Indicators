@@ -26,16 +26,15 @@ def main():
     data = data.drop('index', 1)
 
     # Normalize data
-    # data_n = (data - data.mean()) / (data.max() - data.min())
-    data_n = data
+    data_n = (data - data.mean()) / (data.max() - data.min())
 
     # 2) RNN ----------------------------------------------------------
     # Parameters
     batch_size = 3
-    test_dataset_size = 0.1
+    test_dataset_size = 0.05
     num_units = 12
     learning_rate = 0.001
-    epochs = 10
+    epochs = 8
 
     # Which names are avaiable? print(list(data_n))
     features = ['MA_12', 'MACD_12_26']
@@ -43,7 +42,7 @@ def main():
     dataset_train_length = len(data_n.index) -\
         int(len(data_n.index) * test_dataset_size)
 
-    training_data = data.iloc[:dataset_train_length]
+    training_data = data_n.iloc[:dataset_train_length]
 
     # Train and test the RNN
     predicted_data = network(
