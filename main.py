@@ -78,7 +78,7 @@ def main():
     tracking_error = np.std(
         predicted_data['predicted'] -
         data_n['close'][dataset_train_length::]) * 100
-    # print(tracking_error)
+    print('Tracking_error: ' + str(tracking_error))
 
     # Plot RSI
     ax1 = plt.subplot2grid(
