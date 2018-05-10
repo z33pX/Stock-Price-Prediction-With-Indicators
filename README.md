@@ -11,7 +11,7 @@ The dataset in this example is a `csv` file of 5min BTC_XRP `open`, `high`, `low
 It provides 162675 datapoints. As features for the network we will use indicators. 
 The file `indicators.py` provides many indicators copied from the
 [**pandas-technical-indicators**](https://github.com/Crypto-toolbox/pandas-technical-indicators)
-repository [**Crypto-toolbox**](https://github.com/Crypto-toolbox). Some of them are modified because
+repository from [**Crypto-toolbox**](https://github.com/Crypto-toolbox). Some of them are modified because
 the index did't work for me. Not all indicators are tested so maybe some of them have to be fixed first.
 The net we're using after preparing data is a recurrent neural network. At the end  we'll plot everything.
 
@@ -25,7 +25,7 @@ repository from [**Crypto-toolbox**](https://github.com/Crypto-toolbox) as menti
 
 ```
 # Load dataset
-data = pd.read_csv('BTC_XRP_5min.csv', index_col=0).tail(1000)
+data = pd.read_csv('BTC_XRP_5min.csv', index_col=0).tail(5000)
 data = data.drop(['date', 'quoteVolume', 'volume', 'weightedAverage'], 1)
 
 # Calculate indicators
