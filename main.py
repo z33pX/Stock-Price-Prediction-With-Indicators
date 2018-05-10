@@ -1,88 +1,128 @@
 from network import network
-from graph import draw
-from graph import show
-from graph import save
-from get_data import get_data
-from indicators import CalculateIndicators
-import datetime
-import time
+from indicators import *
+import mpl_finance_ext as mfe
+import matplotlib.pyplot as plt
 
-# Disable UserWarnings on linux promt: export TF_CPP_MIN_LOG_LEVEL=2
 
-## *********************************************************************************
-## 1) *** Download data ***
+def main():
 
-ticker = 'TSLA'
-start_date = '20000101'
-end_date = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d'))
+    # 1) Arrange data -------------------------------------------------
+    # Load dataset (max 120000 datapoints)
+    data = pd.read_csv('BTC_XRP_5min.csv', index_col=0).tail(5000)
+    data = data.drop(['date', 'quoteVolume', 'volume', 'weightedAverage'], 1)
 
-df = get_data(ticker=ticker, start_date=start_date, end_date=end_date)
+    # Calculate indicators
+    data = relative_strength_index(df=data, n=14)
+    data = bollinger_bands(df=data, n=20, std=4, add_ave=False)
+    data = exponential_moving_average(df=data, n=10)
+    data = moving_average(df=data, n=12)
+    data = macd(df=data, n_fast=12, n_slow=26)
 
-## *********************************************************************************
-## 2) *** Calculat indicators ***
+    # Cut DataFrame
+    data = data.iloc[40::]
+    # Reset index
+    data = data.reset_index()
+    # Delete old index
+    data = data.drop('index', 1)
 
-# The first part of the dataset will be cut depending on the indicators parameter to prevent empty data.
-ci = CalculateIndicators(df)
+    # Normalize data
+    # data_n = (data - data.mean()) / (data.max() - data.min())
+    data_n = data
 
-# Parameters
-ci.set_RSI_parameter(n=14)
-ci.set_MACD_parameter(fast=12, slow=26, signal=9)
-ci.set_SO_parameter(period=14)
-ci.set_moving_average_1(window=12)
-ci.set_moving_average_2(window=26)
+    # 2) RNN ----------------------------------------------------------
+    # Parameters
+    batch_size = 3
+    test_dataset_size = 0.1
+    num_units = 12
+    learning_rate = 0.001
+    epochs = 10
 
-data = ci.calculate_indicators()
+    # Which names are avaiable? print(list(data_n))
+    features = ['MA_12', 'MACD_12_26']
 
-# Normalized Data
-data_n = (data - data.mean()) / (data.max() - data.min())
+    dataset_train_length = len(data_n.index) -\
+        int(len(data_n.index) * test_dataset_size)
 
-## *********************************************************************************
-## 3) *** Set parameters, prepare datasets, testing and training ***
+    training_data = data.iloc[:dataset_train_length]
 
-# Parameters
-batch_size = 3
-test_dataset_size = 0.1  # = 10 percent of the complete dataset for testing
-num_units = 12
-learning_rate = 0.001
-epochs = 10
+    # Train and test the RNN
+    predicted_data = network(
+        data_n, features, batch_size,
+        dataset_train_length, num_units,
+        learning_rate, epochs
+    )
 
-# All available features:
-# ['Close', 'MACD', 'Stochastics', 'ATR', 'RSI', ci.moving_average_1_label, ci.moving_average_2_label]
-features = ['MACD', ci.moving_average_1_label]
+    # Append test close data and the predicted data
+    test_close = pd.DataFrame(data_n['close'][dataset_train_length::])
+    df = pd.concat([training_data, predicted_data, test_close])
 
-dataset_train_length = len(data_n.index) - int(len(data_n.index) * test_dataset_size)
+    # 3) Plot ---------------------------------------------------------
+    fig, _ = plt.subplots(facecolor=mfe.background_color)
+    ax0 = plt.subplot2grid(
+        (10, 8), (0, 0),
+        rowspan=6, colspan=8,
+        facecolor=mfe.background_color
+    )
 
-predicted_data = network(data_n, features, batch_size, dataset_train_length, num_units, learning_rate, epochs)
+    mfe.plot_candlestick(
+        fig=fig,
+        axis=ax0,
+        data=df,
+        plot_columns=[
+            'bband_upper_20', 'bband_lower_20',
+            'MA_12', 'predicted', 'close'
+        ],
+        vline=dataset_train_length - 1,
+        vspan=[dataset_train_length - 1, len(data_n.index)],
+    )
 
-## *********************************************************************************
-## 4) Draw graph
+    tracking_error = np.std(
+        predicted_data['predicted'] -
+        data_n['close'][dataset_train_length::]) * 100
+    # print(tracking_error)
 
-# Parameters
-draw_ATR=True
-draw_MACD=True
-draw_Stochastics=True
-draw_RSI=True
-draw_moving_average_1 = True
-draw_moving_average_2 = False
+    # Plot RSI
+    ax1 = plt.subplot2grid(
+        (10, 8), (6, 0),
+        rowspan=2, colspan=8, sharex=ax0,
+        facecolor=mfe.background_color
+    )
 
-# I love to play around with colors :)
-accent_color = '#c9c9c9'
-indicators_color = '#598720'
+    mfe.plot(
+        data=data_n,
+        name='RSI_14',
+        plot_columns=['RSI_14'],
+        axis=ax1,
+        fig=fig,
+        xhline_red=0.8,
+        xhline_green=0.2,
+        vline=dataset_train_length - 1,
+        vspan=[dataset_train_length - 1, len(data_n.index)]
+    )
 
-# The use of normalized data is necessary for plotting the price and moving averages in the same graph.
-data['Close'] = data_n['Close']
-data[ci.moving_average_1_label] = data_n[ci.moving_average_1_label]
-data[ci.moving_average_2_label] = data_n[ci.moving_average_2_label]
-# data['ATR'] = data_n['ATR']
-# data['MACD'] = data_n['MACD']
-# data['Stochastics'] = data_n['Stochastics']
-# data['RSI'] = data_n['RSI']
+    # Plot MACD
+    ax1 = plt.subplot2grid(
+        (10, 8), (8, 0),
+        rowspan=2, colspan=8, sharex=ax0,
+        facecolor=mfe.background_color
+    )
 
-# Draw
-draw(ticker, data[dataset_train_length:], predicted_data, ci,
-     draw_moving_average_1 = draw_moving_average_1, draw_moving_average_2=draw_moving_average_2,
-     draw_ATR=draw_ATR, draw_MACD=draw_MACD, draw_Stochastics=draw_Stochastics, draw_RSI=draw_RSI,
-     accent_color=accent_color, indicators_color=indicators_color)
+    mfe.plot(
+        data=data_n,
+        name='MACD',
+        plot_columns=['MACD_12_26', 'MACDsign_12_26', 'MACDdiff_12_26'],
+        axis=ax1,
+        fig=fig,
+        xhline_dashed1=0,
+        vline=dataset_train_length - 1,
+        vspan=[dataset_train_length - 1, len(data_n.index)]
+    )
+    plt.subplots_adjust(
+        left=.07, bottom=.05, right=.94,
+        top=.96, hspace=0.2, wspace=0.03
+    )
+    plt.show()
 
-show()
-# save('graph.png')
+
+if __name__ == "__main__":
+    main()
