@@ -66,7 +66,7 @@ Network parameters
 Plot everything
 -
 
-For plotting we are using [**mpl_finance_ext**](https://github.com/z33pX/mpl_finance_ext) from another Github repository 
+For plotting we are using [**mpl_finance_ext**](https://github.com/z33pX/mpl_finance_ext) (outdated! Please follow link for current version). from another Github repository 
 of mine. The project provides a documentation.
 
 Result
