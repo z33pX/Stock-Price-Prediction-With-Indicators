@@ -13,7 +13,7 @@ The file `indicators.py` provides many indicators copied from the
 repository from [**Crypto-toolbox**](https://github.com/Crypto-toolbox). Some of them are modified because
 the index did't work for me. Not all indicators are tested so maybe some of them have to be fixed first.
 The net we're using after preparing data is a recurrent neural network. At the end  we'll plot everything with
-[**mpl_finance_ext**](https://github.com/z33pX/mpl_finance_ext).
+[**mpl_finance_ext**](https://github.com/z33pX/mpl_finance_ext) (outdated! Please follow link for current version).
 
 Dataset and features
 -
